@@ -1,10 +1,8 @@
-# Using Bayesian Inference to Identify Medical Conditions and Patient Characteristics that Increase COVID-19 Mortality
+## Using Bayesian Inference to Identify Medical Conditions and Patient Characteristics that Increase COVID-19 Mortality
 
-**Author:** *Robin Lee*, *Ahmed Awadalla*
+*December 10, 2022*
 
-**Date:** *December 10, 2022*
-
-## Abstract
+### Abstract
 
 With the onset of COVID-19 in 2020, doctors and nurses worldwide faced immense challenges in determining which patients required priority treatment. At the peak of the pandemic, limited supplies and resources made it impossible to provide optimal care for every patient. As a result, hospital staff had to make difficult decisions by predicting each patient’s mortality risk.
 
@@ -12,7 +10,7 @@ This study aims to develop a predictive model for mortality risk based on underl
 
 To achieve this, we fit a series of logistic regression models to estimate the mortality risk for COVID-19 patients with different underlying conditions. Given the large number of variables, we implement a Horseshoe Prior on the regression parameters to identify the conditions most strongly associated with increased mortality. Finally, we evaluate our model’s accuracy by computing its Expected Log Pointwise Predictive Density (ELPD).
 
-## 1 Introduction
+### Introduction
 
 As billions of people across the world prepared to celebrate a brand new year towards the waning days of 2019, the World Health Organization received several incongruous reports from Wuhan, China, regarding an unprecedented illness with pneumonia-like symptoms—the very first glimpses of Coronavirus (COVID-19). In the following months, this newfound virus rapidly spread across the globe, subsequently creating the largest world-wide epidemic in more than a century and affecting millions of lives. Contrary to a majority of other common respiratory viruses, COVID-19 leaves its victims in fluctuating levels of condition, ranging from relatively mild flu-like symptoms to almost certain death. Unfortunately, at the time of this report, more than a million people in the United States have lost their lives due to COVID-related complications. 
 
@@ -20,7 +18,7 @@ Countless doctors and nurses around the world struggled to accurately determine 
 
 Because the virus is generally not deadly among young people with no pre-existing illnesses, we specifically examine patients with various common pre-existing medical conditions to predict which ones tend to have the highest COVID-19 mortality risk. Thus, in this report, we examine nearly 5,000 patients—who possess a variety of common medical conditions—around the United States, and utilize Bayesian methods to ascertain the specific characteristics that lead to the highest mortality risk. By fitting a series of logistic regression models, we calculate and predict the mortality risk of COVID-19 patients who also possess other medical conditions. Given the large number of variables, we implement a Horseshoe Prior on the regression parameters to determine which of these conditions contain the highest death rates, before computing our model’s Expected Log Pointwise Predictive Density (ELPD)—allowing us to measure its accuracy. As such, hospitals are able to predict and preemptively distinguish which victims are in significant danger, allowing doctors and nurses to systematically and effectively arrange necessary resources for those who need them the most. 
 
-### 1.1 Mortality Risk Data
+#### Mortality Risk Data
 
 The dataset contains information regarding the following COVID-19 patient attributes: “demographics, comorbidities, admission laboratory values, admission medications, admission supplemental oxygen orders, discharge, and mortality”. Because the data is obtained through a healthcare surveillance software package (Streamline Health: *Clinical Looking Glass*), the information in our dataset regarding COVID-19 patients—who have been admitted to a single healthcare system—is a thorough review of their primary medical records. This data is split over a specific period of time, and separated into the first 3 weeks of the pandemic and the following 3 weeks.
 
@@ -28,15 +26,15 @@ Containing about 50 different medical conditions and individual attributes, the 
 
 Rather than analyze all 84 predictors, we decided to reduce the number of factors to 60. This is because, given the nature of most healthcare institution questionnaires, patients are typically first asked a categorical question—where the response is a discrete “Yes” or “No”, represented in the dataset by `1` and `0` respectively. Thus, we removed most of these binary variables, as they ultimately proved to be quite repetitive. For example, the patients are required to answer whether or not they ever stayed at a hospital (`LOS_Y`), where they either respond “Yes” or “No”; this initial question is succeeded by another variable delineating how many days they stayed in the hospital for (`LOS`), where they respond with a numeric value. Because patients who did not stay at a hospital were simply assigned a `LOS` value of 0, we ultimately did not need a separate categorical variable to help us answer this question—clearly, `LOS =  0` signifies that the person spent 0 days at a hospital and, as such, definitely did not stay. Because many of the discrete-value predictors followed this pattern, we felt compelled to remove these categorical variables in order to tidy our dataset. 
 
-### 1.2 Bayesian Statistical Methods
+#### Bayesian Statistical Methods
 
 In order to identify the pre-existing medical conditions with the highest mortality risk, we strive to construct an accurate predictive model by implementing various common model selection strategies—specifically, fitting a sparse model with a “horseshoe” shaped prior on the logistic regression parameters to discern the most efficient fit between the model and the data. The Horseshoe Prior is utilized when there are many potential predictors for a given outcome, but it is not known which ones are actually relevant. By using this technique, we need to first declare a sparsity prior in order to specify the prior estimate of the number of non-zero variables within the dataset—essentially allowing us to predict the number of factors that negatively influence a patient’s mortality risk following their exposure to COVID-19. 
 
 Furthermore, we utilize the expected log pointwise predictive density (ELPD); as such, we are able to calculate the probability of producing a data set from our data generating process. The Expected Log Pointwise Predictive Density (ELPD) is a measure of the quality of a statistical model and how much it accurately fits not only our dataset, but also new data. In other words, if our model has a high probability of producing a dataset similar to our original COVID-19 mortality data and therefore possess a high ELPD value, we are confident it is accurate. Through these methods, we are able to build a predictive model of COVID-19 mortality risk. 
 
-## 2 Analysis and Results
+### Analysis and Results
 
-### 2.1 Horseshoe Prior on Regression Parameters
+#### Horseshoe Prior on Regression Parameters
 
 Because we have a large number of predictors in our dataset, we use a Horseshoe Prior approach on our regression parameters—where $(y | \beta) \sim N(\beta,\sigma^2 I)$, and $\beta$ is believed to be sparse—to elucidate the unknown sparsity and handle the significant amount of strong signals. The most notable characteristic of the sparsity prior is that we need to specify the prior estimate of the number of non-zero variables out of the selected 44 predictors; in other words, we want to predict the number of factors that contribute to COVID-related mortality before analyzing the data.
 
@@ -100,7 +98,7 @@ Figure 1: Horseshoe Prior on Regression Parameters in COVID-19 Patient Data
 
 From the Figure 1, we can see that the following parameters significantly increase a patient’s mortality risk following their exposure to COVID-19 and are all strong predictors: Peripheral Vascular Disease (`PVD`), End-Stage Renal Disease (`Renal`), Stroke (`Stroke`), Syncope (`OldSyncope`), Age (`Age`), Temperature (`Temp`), Mean Arterial Pressure in mmHg (`MAP`), Alanine Aminotransferase in U/liter (`AST`), Lymphocyte (`Lympho`), Interleukin-6 in pg/ml (`IL-6`), Ferritin (specifically Ferritin > 300: `Ferritin_gt_300`), Procalcitonin (`Procalcitonin`), 	C-reactive Protein (`CrctProtein`), Troponin (`Troponin`). By implementing the Horseshoe Prior, we identify the parameters with the largest signals in relation to the `Death` parameter. Because we are evaluating the mortality risk of COVID-19, the response variable is whether or not a patient has died; thus, we use these variables in a Logistic Regression model to highlight which factors have the highest mortality rate. 
 
-### 2.2 Constructing the Logistic Regression Model
+#### Constructing the Logistic Regression Model
 
 Logistic regression is a type of regression analysis that is typically utilized to predict the outcome of a categorical dependent variable, based on one or more independent variables. In this type of model, the dependent variable is binary, meaning that it can only take on two values (in our model, `Death` is denoted by `0` or `1`). The independent variables we have chosen are either continuous (such as `Stroke`) or categorical (such as `CrctProtein`). These parameters predict the probability that the dependent variable will take on a certain value: `1` or `0`.
 
@@ -149,7 +147,7 @@ Our analysis suggests that Peripheral Vascular Disease (`PVD`), End-Stage Renal 
 In conclusion, the selection of appropriate clinical indicators for early identification and class treatment of COVID-19 patients is very important and can help save lives.
 
 
-### 2.3 Expected Log Pointwise Predictive Density (ELPD)
+#### Expected Log Pointwise Predictive Density (ELPD)
 
 After selecting the parameters that appear to increase a patient’s mortality risk, we want to calculate just how accurate our logistic regression model is and compute its prediction accuracy. The Expected Log Pointwise Predictive Density (ELPD) is a measure of the quality of our statistical model and how much it fits not only the current dataset, but also any new data.
 
@@ -208,7 +206,7 @@ Figure 5: Expected Log Pointwise Predictive Density Validation Relative to the F
 
 Therefore, after plotting the ELPD and the root mean squared error (RMSE) in Figure 4 and 5, we see the model start to over-fit after about 9 predictors. This is because the number of predictors that is closest to the dotted line is around 9, and we do not want to risk decreasing the quality of our fit by including too many parameters. However, while we believe the ideal number of variables is 9, we decide to use the 11 predictors as mentioned in the Section 2.2 Constructing the Logistic Regression Model; this is because we believe that several of the predictors (such as `Age` and `Stroke`) work hand-in-hand to increase COVID-19 mortality risk. Thus, in order to better encapsulate the data, we implement a few more parameters to our model than recommended. Comparing to the full model (Figure 5), the two plots are extremely similar. 
 
-## 3 Discussion
+### Discussion
 
 *Conclusion*
 
@@ -229,7 +227,7 @@ While we do not have missing data, the data only includes patients from a specif
 For further research, we want to run an ELPD for the entire dataset with better resources, since our computers were unable to handle beyond 4 cores in the `cv_varsel` function. Taking a look at the code above, we only utilized 2 cores. We also believe that including more factors—such as gender—would improve our model’s accuracy, as well as more data from across the United States and the world. Ultimately, we want our model to be representative of all individuals who contract COVID-19. 
 
 
-## References
+### References
 
 [1] Chowdhury, M. E. H., Rahman, T., Khandakar, A., Al-Madeed, S., Zughaier, S. M., Doi, S. A. R., Hassen, H., & Islam, M. T. (2021, April 21). An early warning tool for predicting mortality risk of COVID- 19 patients using machine learning - cognitive computation. SpringerLink. Retrieved December 9, 2022, from https://link.springer.com/article/10.1007/s12559-020-09812-7
 
